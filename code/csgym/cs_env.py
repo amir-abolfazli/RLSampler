@@ -22,7 +22,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import time
-#matplotlib.use('Qt5Agg')
+
 
 
 class ConfSamplingEnv(gym.Env, object):
@@ -324,7 +324,6 @@ class ConfSamplingEnv(gym.Env, object):
         action_2 = int(action[1])
 
         last_node = False
-
         final_reward = 0.0
 
         coverage, dd = self.get_coverage()
@@ -332,15 +331,12 @@ class ConfSamplingEnv(gym.Env, object):
         if int(coverage) == 1 and self.sample.shape[1] >= self.best_c_sampleSize:
             rnd_action = random.choice(self.sample_labels)
             idx = self.sample_labels.index(rnd_action)
-
             _, current_pairs1 = self.get_coverage()
             all_satisfied_pairs1 = self.get_satisfied_pairs_keys(current_pairs1)
 
             self.sample = np.delete(self.sample, idx, axis=1)
             self.sample_labels.remove(rnd_action)
-
             _, current_pairs2 = self.get_coverage()
-
             all_satisfied_pairs2 = self.get_satisfied_pairs_keys(current_pairs2)
 
             if len(all_satisfied_pairs2) == len(all_satisfied_pairs1):
@@ -348,28 +344,19 @@ class ConfSamplingEnv(gym.Env, object):
             else:
                 final_reward = -1.0
                 k = self.possible_configs[:, action_2][..., np.newaxis]
-
                 self.sample = np.hstack((self.sample, k))
                 self.sample_labels.append(action_2)
 
-
-
         else:
-
             if action_1 == 0:  # add
                 if action_2 not in self.sample_labels:
-
                     _, current_pairs = self.get_coverage()
-
                     cov_sample, pairs_N = self.get_coverage_conf_sample(self.possible_configs[:, action_2])
-
                     all_satisfied_pairs = self.get_satisfied_pairs_keys(pairs_N)
-
                     res = any(ele in self.get_unsatisfied_pairs_keys(current_pairs) for ele in all_satisfied_pairs)
 
                     if res:
                         k = self.possible_configs[:, action_2][..., np.newaxis]
-
                         self.sample = np.hstack((self.sample, k))
                         self.sample_labels.append(action_2)
 
@@ -385,8 +372,6 @@ class ConfSamplingEnv(gym.Env, object):
 
                 if (action_2 in self.sample_labels):
                     _, current_pairs1 = self.get_coverage()
-
-                    #
                     all_satisfied_pairs1 = self.get_satisfied_pairs_keys(current_pairs1)
                     idx = self.sample_labels.index(action_2)
                     self.sample = np.delete(self.sample, idx, axis=1)
@@ -406,55 +391,6 @@ class ConfSamplingEnv(gym.Env, object):
                         self.sample_labels.append(action_2)
                 else:
                     final_reward = 0.0
-        # if action_1 == 0: # add
-        #     if action_2 not in self.sample_labels:
-        #
-        #         _, current_pairs = self.get_coverage()
-        #
-        #         cov_sample, pairs_N = self.get_coverage_conf_sample(self.possible_configs[:, action_2])
-        #         all_satisfied_pairs = self.get_satisfied_pairs_keys(pairs_N)
-        #
-        #         res = any(ele in self.get_unsatisfied_pairs_keys(current_pairs) for ele in all_satisfied_pairs)
-        #
-        #         if res:
-        #             k = self.possible_configs[:, action_2][..., np.newaxis]
-        #
-        #             self.sample = np.hstack((self.sample, k))
-        #             self.sample_labels.append(action_2)
-        #
-        #             final_reward = 1.0
-        #         else:
-        #             final_reward = -1.0
-        #     else:
-        #         final_reward = 0.0
-        #
-        #
-        #
-        # elif action_1 == 1: # remove
-        #
-        #     if (action_2 in self.sample_labels):
-        #         _, current_pairs1 = self.get_coverage()
-        #
-        #         all_satisfied_pairs1 = self.get_satisfied_pairs_keys(current_pairs1)
-        #         idx = self.sample_labels.index(action_2)
-        #         self.sample = np.delete(self.sample, idx, axis=1)
-        #         self.sample_labels.remove(action_2)
-        #
-        #         _, current_pairs2 = self.get_coverage()
-        #
-        #         all_satisfied_pairs2 = self.get_satisfied_pairs_keys(current_pairs2)
-        #
-        #         if len(all_satisfied_pairs2) == len(all_satisfied_pairs1):
-        #             final_reward = 1.0
-        #         else:
-        #             final_reward = -1.0
-        #             k = self.possible_configs[:, action_2][..., np.newaxis]
-        #
-        #             self.sample = np.hstack((self.sample, k))
-        #             self.sample_labels.append(action_2)
-        #     else:
-        #         final_reward = 0.0
-
 
         current_coverage, current_comb_dict = self.get_coverage()
         current_size = self.sample.shape[1]
@@ -494,8 +430,6 @@ class ConfSamplingEnv(gym.Env, object):
                                  comb_config_dict.items()}
 
             min_val = max(1, min([len(ele) for k, ele in comb_config_dict2.items()]))
-
-            # print(f"Min Val: {min_val}")
 
             if self.ep_id == 1:
                 result = {key: value for key, value in comb_config_dict2.items() if
